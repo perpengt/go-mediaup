@@ -3,6 +3,7 @@ package mediaup
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
@@ -10,7 +11,7 @@ import (
 	"github.com/perpengt/mediaup/internal/resp"
 )
 
-func newUploadRequest(url string, data []byte) (*http.Request, error) {
+func newUploadRequest(url string, token string, data []byte) (*http.Request, error) {
 	var (
 		mimeType string
 		fileExt string
@@ -33,8 +34,13 @@ func newUploadRequest(url string, data []byte) (*http.Request, error) {
 	buf := bytes.NewBuffer([]byte{})
 	mw := multipart.NewWriter(buf)
 
+	disposition := fmt.Sprintf(
+		`form-data; name="file"; filename="upload%s"; token="%s"`,
+		fileExt, token,
+	)
+
 	h := make(textproto.MIMEHeader)
-	h.Set("Content-Disposition", "form-data; name=\"file\"; filename=\"upload" + fileExt + "\"")
+	h.Set("Content-Disposition", disposition)
 	h.Set("Content-Type", mimeType)
 
 	part, err := mw.CreatePart(h)

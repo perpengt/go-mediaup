@@ -8,11 +8,7 @@ import (
 	"image/png"
 )
 
-var (
-	ErrNotPng = errors.New("media server only supports png file")
-)
-
-func UploadImage(url string, img image.Image) ([]byte, error) {
+func UploadImage(url string, token string, img image.Image) ([]byte, error) {
 	buf := bytes.NewBuffer([]byte{})
 
 	err := png.Encode(buf, img)
@@ -20,12 +16,12 @@ func UploadImage(url string, img image.Image) ([]byte, error) {
 		return nil, err
 	}
 
-	return UploadImageBytes(url, buf.Bytes())
+	return UploadImageBytes(url, token, buf.Bytes())
 }
 
-func UploadImageBytes(url string, data []byte) ([]byte, error) {
+func UploadImageBytes(url string, token string, data []byte) ([]byte, error) {
 
-	req, err := newUploadRequest(url, data)
+	req, err := newUploadRequest(url, token, data)
 	if err != nil {
 		return nil, err
 	}
