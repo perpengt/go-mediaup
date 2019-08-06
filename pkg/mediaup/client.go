@@ -5,15 +5,39 @@ import (
 	"encoding/json"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 
 	"github.com/perpengt/mediaup/internal/resp"
 )
 
 func newUploadRequest(url string, data []byte) (*http.Request, error) {
-	buf := bytes.NewBuffer([]byte{})
+	var (
+		mimeType string
+		fileExt string
+	)
 
+	// Detect mime type
+	mimeType = http.DetectContentType(data)
+	switch mimeType {
+	case "image/png":
+		fileExt = ".png"
+
+	case "image/jpeg":
+		fileExt = ".jpg"
+
+	default:
+		return nil, ErrUnsupportedFileType
+	}
+
+	// Create buffer
+	buf := bytes.NewBuffer([]byte{})
 	mw := multipart.NewWriter(buf)
-	part, err := mw.CreateFormField("file")
+
+	h := make(textproto.MIMEHeader)
+	h.Set("Content-Disposition", "form-data; name=\"file\"; filename=\"upload" + fileExt + "\"")
+	h.Set("Content-Type", mimeType)
+
+	part, err := mw.CreatePart(h)
 	if err != nil {
 		return nil, err
 	}

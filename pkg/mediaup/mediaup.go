@@ -3,11 +3,9 @@ package mediaup
 import (
 	"bytes"
 	"errors"
+	"github.com/perpengt/ids"
 	"image"
 	"image/png"
-	"net/http"
-
-	"github.com/perpengt/ids"
 )
 
 var (
@@ -26,9 +24,6 @@ func UploadImage(url string, img image.Image) ([]byte, error) {
 }
 
 func UploadImageBytes(url string, data []byte) ([]byte, error) {
-	if http.DetectContentType(data) != "image/png" {
-		return nil, ErrNotPng
-	}
 
 	req, err := newUploadRequest(url, data)
 	if err != nil {
